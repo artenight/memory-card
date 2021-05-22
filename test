@@ -1,0 +1,162 @@
+from random import shuffle, randint
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QGroupBox, QPushButton, QRadioButton, QButtonGroup
+
+
+class Question():
+    def __init__(self,question,right_answer,wrong1,wrong2,wrong3):
+        self.question = question
+        self.right_answer = right_answer
+        self.wrong1 = wrong1
+        self.wrong2 = wrong2
+        self.wrong3 = wrong3
+
+questions_list = []
+q1 = Question("Государственный язык Бразилии", "Португальский","Бразильский","Испанский","Итальянский")
+questions_list.append(q1)
+q2 = Question("Что изображенно на флаге Японии?","Круг","Квадрат","Овал","Треугольник")
+questions_list.append(q2)
+q3 = Question("Какого цвета нет на флаге России?","Черный","Синий","Краный","Белый")
+questions_list.append(q3)
+q4 = Question("Когда началась Вторая мировая война?","1941","1942","1951","1943")
+questions_list.append(q4)
+q5 = Question("От чего погибли динозавры?","метеорит","потоп","землетрясение","глобальное потeпление")
+questions_list.append(q5)
+q6 = Question("Самая большая страна?","Россия","Китай","США","Индия")
+questions_list.append(q6)
+q7 = Question("Какой националбности не существует?", "Смурфы","Энцы","Алеуты","Чулымцы")
+questions_list.append(q7)
+q8 = Question("Как переводится слово дружба?", "Friendship","Frandship","Friendlyship","Frundshap")
+questions_list.append(q8)
+q9 = Question("Что сильнее всего загрезняет воздух?", "Транспорт","Фабрики","Выделение углекислого газа живыми существами","Испарения вредоносных металлов")
+questions_list.append(q9)
+q10 = Question("Первый полет в космос совершил?", "Гагарин","Торочков","Киселев","Висовский")
+questions_list.append(q1)
+
+
+
+
+
+#создание приложения и главного окна
+app = QApplication([])
+mem = QWidget()
+mem.setWindowTitle("Memo card")
+mem.resize(400,300)
+
+line_v1 = QVBoxLayout()
+
+qst = QLabel("Какой национальности не существует?")
+line_h1 = QHBoxLayout()
+line_h1.addWidget(qst,alignment= Qt.AlignCenter)
+line_v1.addLayout(line_h1)
+
+
+radiogroup = QGroupBox("Варианты ответов")
+line_h2 = QHBoxLayout()
+line_h2.addWidget(radiogroup,alignment= Qt.AlignCenter)
+line_v1.addLayout(line_h2)
+
+ans = QPushButton("Ответить")
+line_h4 = QHBoxLayout()
+
+
+
+line_h4.addWidget(ans,alignment= Qt.AlignCenter)
+line_v1.addLayout(line_h4)
+
+ans1 = QRadioButton('Энцы')
+ans2 = QRadioButton('Смурфы')
+ans3 = QRadioButton('Чулымцы')
+ans4 = QRadioButton('Алеуты')
+
+Radiogroupres = QButtonGroup()
+Radiogroupres.addButton(ans1)
+Radiogroupres.addButton(ans2)
+Radiogroupres.addButton(ans3)
+Radiogroupres.addButton(ans4)
+
+line_v2 = QVBoxLayout()
+line_v3 = QVBoxLayout()
+line_h5 = QHBoxLayout()
+
+line_v2.addWidget(ans1)
+line_v2.addWidget(ans2)
+line_v3.addWidget(ans3)
+line_v3.addWidget(ans4)
+
+line_h5.addLayout(line_v2)
+line_h5.addLayout(line_v3)
+radiogroup.setLayout(line_h5)
+
+#2 часть форма ответа
+
+ansgroup = QGroupBox("Результаты теста")
+right = QLabel("Правильно")
+rightans = QLabel("Правильный ответ")
+
+line_v4= QVBoxLayout()
+line_v4.addWidget(right)
+line_v4.addWidget(rightans)
+ansgroup.setLayout(line_v4)
+line_h2.addWidget(ansgroup,alignment= Qt.AlignCenter)
+ansgroup.hide()
+def show_result():
+    radiogroup.hide()
+    ansgroup.show()
+    ans.setText("Следующий вопрос")
+
+def show_question():
+    ansgroup.hide()
+    radiogroup.show()
+    ans.setText("Ответить")
+    Radiogroupres.setExclusive(False)
+    ans1.setChecked(False)
+    ans2.setChecked(False)
+    ans3.setChecked(False)
+    ans4.setChecked(False)
+    Radiogroupres.setExclusive(True)
+
+answers = [ans1,ans2,ans3,ans4]
+def ask(q: Question):
+    shuffle(answers)
+    answers[0].setText(q.right_answer)
+    answers[1].setText(q.wrong1)
+    answers[2].setText(q.wrong2)
+    answers[3].setText(q.wrong3)
+    qst.setText(q.question)
+    rightans.setText(q.right_answer)
+    show_question()
+
+
+def check_answer():
+    if answers[0].isChecked():
+        right.setText("Правильно")
+        show_result()
+        mem.score += 1
+    elif answers[1].isChecked() or answers[2].isChecked() or answers[3].isChecked():
+        right.setText("Неправильно")
+        show_result()
+    print("Всего вопросов:", mem.total,"Правильных ответов:",mem.score,"Рейтинг",mem.score/mem.total*100,"%")
+
+def next_question():
+    mem.total +=1
+    cur_question = randint(0, len(questions_list) - 1)
+    q = questions_list[cur_question]
+    ask(q)
+
+def clik_ans():
+    if ans.text() == "Ответить":
+        check_answer()
+    else:
+        next_question()
+
+#######################################################################
+mem.setLayout(line_v1)
+
+mem.score = 0
+mem.total = 0
+ans.clicked.connect(clik_ans)
+next_question()
+
+mem.show()
+app.exec_()
